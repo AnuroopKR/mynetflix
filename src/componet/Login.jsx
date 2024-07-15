@@ -1,7 +1,57 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Header from './Header'
+import checkValidData from '../utils/validate';
+import { createUserWithEmailAndPassword,signInWithEmailAndPassword } from "firebase/auth";
+import auth from '../utils/firebase'
+
 const Login = () => {
   const[isSigninForm,setSigninForm]=useState(true)
+  const[errorMessage,setErrorMessage]=useState(null)
+  const email=useRef(null);
+  const password=useRef(null)
+
+  const handleButtonClick=()=>{
+    const message=checkValidData(email.current.value,password.current.value)
+    setErrorMessage(message)
+    console.log(message);
+    if(message!==null){
+      return;
+    } 
+    if (!isSigninForm) {
+      createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
+  .then((userCredential) => {
+    // Signed up 
+    const user = userCredential.user;
+    console.log("user",user);
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode+','+errorMessage)
+    // ..
+  });
+
+    }else{
+
+      signInWithEmailAndPassword(auth, email.current.value,password.current.value)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    console.log(user);
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode+','+errorMessage)
+  });
+
+    }
+  }
+  
+
+
   const toggleSigninForm=()=>{
     setSigninForm(!isSigninForm)
   }
@@ -13,7 +63,7 @@ const Login = () => {
       </div>
       <Header/>
       
-      <form action="" className='py-12 px-10 w-80 absolute bg-black my-36 mx-auto right-0 left-0 text-white rounded-md bg-opacity-75'>
+      <form onSubmit={(e)=>e.preventDefault()} action="" className='py-12 px-10 w-80 absolute bg-black my-36 mx-auto right-0 left-0 text-white rounded-md bg-opacity-75'>
         <h1 className='font-bold text-3xl py-4'>{isSigninForm?"Sign In":"Sign Up" }</h1>
         {!isSigninForm&&(<input 
           type="text" 
@@ -21,16 +71,19 @@ const Login = () => {
           className='p-2 my-3 w-full bg-gray-600 rounded-md bg-opacity-70 border-[.05px] border-slate-400'
           />)}
         <input 
+        ref={email}
           type="text" 
           placeholder='email address' 
           className='p-2 my-3 w-full bg-gray-600 rounded-md bg-opacity-70 border-[.05px] border-slate-400'
           />
         <input 
+        ref={password}
           type="password" 
           placeholder='password' 
           className='p-2 my-3 w-full bg-gray-600 rounded-md bg-opacity-70 border-[.05px] border-slate-400 '
           />
-        <button className='p-2 my-6 bg-red-700 w-full rounded-md '>{isSigninForm?"Sign In":"Sign Up" }</button>
+          <p className='text-red-500'>{errorMessage}</p>
+        <button className='p-2 my-6 bg-red-700 w-full rounded-md ' onClick={handleButtonClick}>{isSigninForm?"Sign In":"Sign Up" }</button>
         <p className='cursor-pointer' onClick={toggleSigninForm}>{isSigninForm?"Allready have an account? Sign In":"New to Netflix? Sign up now" }</p>
       </form>
       </div>
