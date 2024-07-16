@@ -7,6 +7,7 @@ import auth from '../utils/firebase'
 const Login = () => {
   const[isSigninForm,setSigninForm]=useState(true)
   const[errorMessage,setErrorMessage]=useState(null)
+  const name=useRef(null)
   const email=useRef(null);
   const password=useRef(null)
 
@@ -21,8 +22,21 @@ const Login = () => {
       createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
   .then((userCredential) => {
     // Signed up 
-    const user = userCredential.user;
+    const user = userCredential.user
+updateProfile(auth.currentUser, {
+  displayName: name.current.value, photoURL: "https://example.com/jane-q-user/profile.jpg"
+}).then(() => {
+  dispatch(addUser({uid:uid,email:email,displayName:displayName}))
+
+  // Profile updated!
+  // ...
+}).catch((error) => {
+  setErrorMessage(error.message)
+  // An error occurred
+  // ...
+});
     console.log("user",user);
+    // navigate("/browse")
     // ...
   })
   .catch((error) => {
@@ -39,6 +53,8 @@ const Login = () => {
     // Signed in 
     const user = userCredential.user;
     console.log(user);
+    // navigate("/browse")
+
     // ...
   })
   .catch((error) => {
@@ -66,6 +82,7 @@ const Login = () => {
       <form onSubmit={(e)=>e.preventDefault()} action="" className='py-12 px-10 w-80 absolute bg-black my-36 mx-auto right-0 left-0 text-white rounded-md bg-opacity-75'>
         <h1 className='font-bold text-3xl py-4'>{isSigninForm?"Sign In":"Sign Up" }</h1>
         {!isSigninForm&&(<input 
+          ref={name}
           type="text" 
           placeholder='Name' 
           className='p-2 my-3 w-full bg-gray-600 rounded-md bg-opacity-70 border-[.05px] border-slate-400'
