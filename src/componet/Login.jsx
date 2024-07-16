@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import Header from './Header'
 import checkValidData from '../utils/validate';
-import { createUserWithEmailAndPassword,signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile } from "firebase/auth";
 import auth from '../utils/firebase'
 
 const Login = () => {
@@ -14,7 +14,7 @@ const Login = () => {
   const handleButtonClick=()=>{
     const message=checkValidData(email.current.value,password.current.value)
     setErrorMessage(message)
-    console.log(message);
+    console.log("message",message);
     if(message!==null){
       return;
     } 
@@ -23,10 +23,12 @@ const Login = () => {
   .then((userCredential) => {
     // Signed up 
     const user = userCredential.user
+    console.log(name.current.value);
 updateProfile(auth.currentUser, {
   displayName: name.current.value, photoURL: "https://example.com/jane-q-user/profile.jpg"
 }).then(() => {
-  dispatch(addUser({uid:uid,email:email,displayName:displayName}))
+  console.log("display",displayName);
+  dispatch(addUser({uid:uid,email:email,displayName:displayName,}))
 
   // Profile updated!
   // ...

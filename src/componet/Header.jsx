@@ -29,7 +29,7 @@ const Header = () => {
   }
 
     useEffect(()=>{
-      onAuthStateChanged(auth, (user) => {
+     const unsuscribe= onAuthStateChanged(auth, (user) => {
         if (user) {
           const {uid,email,displayName} = auth.currentUser;
           dispatch(addUser({uid:uid,email:email,displayName:displayName}))
@@ -39,6 +39,7 @@ const Header = () => {
           navigate('/')
         }
       });
+      return ()=>unsuscribe()
      },[])
   return (
     <div className='absolute w-screen px-32 py-2 bg-gradient-to-b from-black flex justify-between'>
